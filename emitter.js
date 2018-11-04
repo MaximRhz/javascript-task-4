@@ -11,6 +11,16 @@ const isStar = true;
  * @returns {Object}
  */
 function getEmitter() {
+    const totalEvents = {};
+    function subscribeToAnEvent(event, context, handler) {
+        if (!totalEvents[event]) {
+           totalEvents[event] = [];
+        }
+        totalEvents[event].push({context, handler});
+        console.log(totalEvents)
+        
+    }
+
     return {
 
         /**
@@ -20,7 +30,10 @@ function getEmitter() {
          * @param {Function} handler
          */
         on: function (event, context, handler) {
-            console.info(event, context, handler);
+            //console.log({event, context, handler});
+            subscribeToAnEvent(event, context, handler);
+
+            return this;
         },
 
         /**
