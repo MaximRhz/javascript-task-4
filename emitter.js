@@ -61,7 +61,7 @@ function getEmitter() {
          * @returns {any}
          */
         emit: function (event) {
-            if (totalEvents.hasOwnProperty(event)) {
+            if (totalEvents[event]) {
                 totalEvents[event].forEach(learner => learner.handler.call(learner.context));
             }
 
