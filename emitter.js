@@ -21,9 +21,8 @@ function getEmitter() {
     }
 
     function unsubscribeFromTheEvent(event, context) {
-        let withDot = new RegExp(event + '.');
         const sortedKeys = Object.keys(totalEvents)
-            .filter(key => key === event || withDot.test(key));
+            .filter(key => key === event || key.startsWith(`${event}.`));
         sortedKeys.forEach(key => {
             totalEvents[key] = totalEvents[key].filter(learner => learner.context !== context);
         });
@@ -61,14 +60,14 @@ function getEmitter() {
          * @param {String} event
          * @returns {any}
          */
-        emit: function emit(event) {
+        emit: function (event) {
             if (totalEvents.hasOwnProperty(event)) {
                 totalEvents[event].forEach(learner => learner.handler.call(learner.context));
             }
 
             if (/\./.test(event)) {
                 event = event.slice(0, event.lastIndexOf('.'));
-                emit(event);
+                this.emit(event);
             }
 
             return this;
