@@ -4,7 +4,7 @@
  * Сделано задание на звездочку
  * Реализованы методы several и through
  */
-const isStar = true;
+const isStar = false;
 
 /**
  * Возвращает новый emitter
@@ -12,13 +12,21 @@ const isStar = true;
  */
 function getEmitter() {
     const totalEvents = {};
+
     function subscribeToAnEvent(event, context, handler) {
         if (!totalEvents[event]) {
-           totalEvents[event] = [];
+            totalEvents[event] = [];
         }
-        totalEvents[event].push({context, handler});
-        console.log(totalEvents)
-        
+        totalEvents[event].push({ context, handler });
+    }
+
+    function unsubscribeFromTheEvent(event, context) {
+        let withDot = new RegExp(event + '.');
+        const sortedKeys = Object.keys(totalEvents)
+            .filter(key => key === event || withDot.test(key));
+        sortedKeys.forEach(key => {
+            totalEvents[key] = totalEvents[key].filter(learner => learner.context !== context);
+        });
     }
 
     return {
@@ -28,9 +36,9 @@ function getEmitter() {
          * @param {String} event
          * @param {Object} context
          * @param {Function} handler
+         * @returns {any}
          */
         on: function (event, context, handler) {
-            //console.log({event, context, handler});
             subscribeToAnEvent(event, context, handler);
 
             return this;
@@ -40,17 +48,30 @@ function getEmitter() {
          * Отписаться от события
          * @param {String} event
          * @param {Object} context
+         * @returns {any}
          */
         off: function (event, context) {
-            console.info(event, context);
+            unsubscribeFromTheEvent(event, context);
+
+            return this;
         },
 
         /**
          * Уведомить о событии
          * @param {String} event
+         * @returns {any}
          */
-        emit: function (event) {
-            console.info(event);
+        emit: function emit(event) {
+            if (totalEvents.hasOwnProperty(event)) {
+                totalEvents[event].forEach(learner => learner.handler.call(learner.context));
+            }
+
+            if (/\./.test(event)) {
+                event = event.slice(0, event.lastIndexOf('.'));
+                emit(event);
+            }
+
+            return this;
         },
 
         /**
